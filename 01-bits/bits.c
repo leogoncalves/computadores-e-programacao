@@ -49,8 +49,9 @@
  *          ehPar(2) -> 1
  *          ehPar(7) -> 0
  */
+
 int32_t ehPar(int32_t x) {
-    return -1;
+    return (x ^ 1 == x + 1) ? 1 : 0
 }
 
 /*
@@ -68,8 +69,9 @@ int32_t ehPar(int32_t x) {
  *          mod8(7) -> 7
  *          mod8(10) -> 2
  */
+
 int32_t mod8(int32_t x) {
-    return -1;
+    return x & 0x7;
 }
 
 /* Negativo sem -
@@ -85,8 +87,12 @@ int32_t mod8(int32_t x) {
  *          negativo(1) -> -1
  *          negativo(42) -> -42
  */
+
+
+// x ^ 1 === x = x-1
 int32_t negativo(int32_t x) {
-    return -1;
+    return ~(x^1);
+    // return ~(x+1);
 }
 
 /* Implementação do & usando bitwise
@@ -122,7 +128,7 @@ int32_t bitwiseAnd(int32_t x, int32_t y) {
  *          ehIgual(16, 8) -> 0
  */
 int32_t ehIgual(int32_t x, int32_t y) {
-    return -1;
+    return !!(x & y);
 }
 
 /* Limpa bit n
