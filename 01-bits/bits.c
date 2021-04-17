@@ -51,7 +51,13 @@
  */
 
 int32_t ehPar(int32_t x) {
-    return (x ^ 1 == x + 1) ? 1 : 0
+     return !(x<<31);
+/*Em binário o bit menos significativo diz se o número é impar/par, pois ele é a potência de zero. 
+Quando esse bit é 1 ele soma 1 ao número (que já são que são somas de potências de dois, é sempre par), 
+tornando-o ímpar. Caso contrário ele é par (soma das outras potências que são pares mais o zero desse 
+bit menos significativo). Como solução, tornamos o bit menos significativo o bit mais significativo, 
+"shiftando 31 a esquerda", com a finalidade de, se esse bit for 1(impar) o número é diferente de zero 
+e retorna TRUE, se for 0 (par) retorna 0=FALSE. Como queremos o valor lógico precisamo negar.*/
 }
 
 /*
@@ -72,6 +78,7 @@ int32_t ehPar(int32_t x) {
 
 int32_t mod8(int32_t x) {
     return x & 0x7;
+    /* OBS: Funciona para qualquer potência de 2 */
 }
 
 /* Negativo sem -
@@ -91,8 +98,11 @@ int32_t mod8(int32_t x) {
 
 // x ^ 1 === x = x-1
 int32_t negativo(int32_t x) {
-    return ~(x^1);
+    // return ~(x^1);
     // return ~(x+1);
+    return (~x)+1;
+	/*Complementa 2: Pegamos o complemento de x e somamos 1.*/
+    
 }
 
 /* Implementação do & usando bitwise
@@ -111,7 +121,10 @@ int32_t negativo(int32_t x) {
  *              11 & 1011 -> 0011
  */
 int32_t bitwiseAnd(int32_t x, int32_t y) {
-    return -1;
+    return ~((~x)|(~y));
+	/* O operador AND bit a bit (&) retorna 1 em cada posição de bit
+    para a qual os bits correspondentes de ambos os operandos são 1s.
+    De morgan: Como queremos x&y, por de morgan ~((~x)|(~y)) = ~(x&y) = ~x|~y */
 }
 
 /* Igual sem ==
@@ -128,7 +141,13 @@ int32_t bitwiseAnd(int32_t x, int32_t y) {
  *          ehIgual(16, 8) -> 0
  */
 int32_t ehIgual(int32_t x, int32_t y) {
-    return !!(x & y);
+    // return !!(x & y);
+    return!(x^y);
+	/*Usamos o "ou-exclusivo(^) para comparar bit a bit. No ou-exclusivo 
+    quando os bits são iguais ele retorna 0 e quando os bits são diferentes 
+    retorna 1. Então se os números x e y são iguais, quando faço a operação 
+    ou-exclusivo ele retorna zero, caso contrário retorna um número que não 
+    necessariamente é um. Então sera necessario o operador lógico para resolver.*/
 }
 
 /* Limpa bit n
@@ -176,7 +195,16 @@ int32_t limpaBitN(int32_t x, int8_t n) {
  *
  */
 int32_t bitEmP(int32_t x, uint8_t p) {
-    return -1;
+    return return !(!((x&(1<<p))>>p));
+/* Deslocamos o 1 à esquerda até a posição "p" para podermos comparar 
+bit a bit. Escolhemos o 1 pois ele só tem o bit menos significativo 
+ligado(o resto todo zero) e isso ajuda na comparação bit a bit(&). 
+O & compara bit a bit, se forem diferente ou iguais a zero ele retorna 
+0, se são iguais a 1 ele retorna 1. Depois de deslocar até o bit desejavel, 
+comparamos e retornamos até o bit menos significativo, fazendo o shift à 
+direita, para podermos usar o operador lógico, já que o valor de retorno é 
+0 ou 1. O operador lógico(!), usamos por conta do bit do sinal. Porque sem 
+eles retornavam -1 */
 }
 
 /*
@@ -266,7 +294,7 @@ int32_t minimo(int32_t x, int32_t y) {
  *
  */
 int32_t negacaoLogica(int32_t x) {
-  return -1;
+  return (x^x)&(x^~x);
 }
 
 void teste(int32_t saida, int32_t esperado) {
