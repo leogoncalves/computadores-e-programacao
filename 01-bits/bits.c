@@ -20,9 +20,9 @@
  *      - As resoluções com menos operações do que a do monitor terão bonificação.
  *
  * Assinatura:
- *      Aluno: <nome>
- *      DRE: <DRE>
- *      versão do GCC utilizada: XXXX
+ *      Aluno: Leonardo Gonçalves | Kathleen Santana
+ *      DRE: 111337097 | 113163232
+ *      versão do GCC utilizada: 10.2.0
  *
  */
 
@@ -157,9 +157,24 @@ int32_t bitwiseAnd(int32_t x, int32_t y) {
 	/* 
         O operador bitwise AND (&) retorna 1 em cada posição de byte
         para a qual os bits correspondentes de ambos os operandos são 1.
-        Aplicando Leis De Morgan, podemos fazer o seguinte:
+        Para fazer uma operação equivalente, podemos fazer um OR do 
+        complementoa dois dos dois operandos. Lembrando que o complemento a dois
+        apenas irá "flipar" os bits.
+        Ao fazer isso, iremos setar todos os bits que casarem para 1. 
+        Vamos lembrar que:
         
-        Como queremos x&y, por de morgan ~((~x)|(~y)) = ~(x&y) = ~x|~y
+        0 | 0 = 0
+        1 | 0 = 1
+        0 | 1 = 1
+        1 | 1 = 1.
+        
+        Ou seja, cada par de bits em que ambos não sejam zero irá virar 1.
+        Agora, basta fazer o complemento a dois do valor que encontramos na 
+        operação acima para novamente flipar o resultado. 
+
+        Fazendo um paralelo com Lei de Morgan, estamos buscando o seguinte:
+        ¬((¬x)|(¬y)) = (¬(¬x))&(¬(¬y)) = x&y
+        
     */
     return ~((~x)|(~y));
 }
@@ -180,11 +195,14 @@ int32_t bitwiseAnd(int32_t x, int32_t y) {
 int32_t ehIgual(int32_t x, int32_t y) {
     
 	/*
-        Usamos o "ou-exclusivo(^) para comparar bit a bit. No ou-exclusivo 
-        quando os bits são iguais ele retorna 0 e quando os bits são diferentes 
-        retorna 1. Então se os números x e y são iguais, quando faço a operação 
-        ou-exclusivo ele retorna zero, caso contrário retorna um número que não 
-        necessariamente é um. Então sera necessario o operador lógico para resolver.
+        Para resolver esse problema, vamos usar o XOR, que ao comparar os bits
+        retorna 1 se ambos operandos são opostos e 0 caso contrário. 
+        Então, caso x e y sejam iguais, a operação deve retornar 0, e caso contrário, 
+        irá retornar um número diferente de 0.
+
+        Como o resultado esperado deve ser 1 se os números forem iguais
+        e 0 caso contrário, precisamos utilizar o operador not para inverter 
+        o valor obtido pelo XOR.
     */
 
     return !(x^y);
@@ -208,17 +226,24 @@ int32_t limpaBitN(int32_t x, int8_t n) {
 
 	/*
         Dado um número x, o objetivo e retornar esse número com o bit
-        n "limpo". Ou seja, quando for 1 "apaga" e vira 0 e quando for 0
-        permanece 0. 
+        n "limpo". Ou seja:
+        Quando for, 1 "apaga" e vira 0 
+        Quando for 0, permanece 0
+        
         Um AND bit a bit de qualquer bit com um bit de reset
         resulta em um bit de reset. Isso quer dizer que: 
         
         0 AND 0 = 0
         1 AND 0 = 0
         
-        Logo, significa executar um AND bit a bit de um número
+        Logo, podemos executar um AND bit a bit de um número
         com um bit de redefinição é a ideia mais prática. 
-        Ou seja, x = x & ~ (1 << n), onde n é o bit a ser apagado. 
+        Para isso, fazemos um shift a esquerda de 1 por n posições,
+        fazendo com o que o bit queremos apagar seja setado em 1,
+        "flipamos" o conjunto de bits usando o operador ~ e por fim,
+        fazemos o AND entre a nossa entrada e a "máscara" que criamos, 
+        apagando assim o bit da posição n da entrada.
+        Ou seja, fazemos x = x & ~ (1 << n), onde n é o bit a ser apagado. 
     */
 
     return x & ~(1 << n);
@@ -252,17 +277,15 @@ int32_t limpaBitN(int32_t x, int8_t n) {
  */
 int32_t bitEmP(int32_t x, uint8_t p) {
     /* 
-        Deslocamos o 1 à esquerda até a posição "p" para podermos comparar 
-        bit a bit. Escolhemos o 1 pois ele só tem o bit menos significativo 
-        ligado(o resto todo zero) e isso ajuda na comparação bit a bit(&). 
-        O & compara bit a bit, se forem diferente ou iguais a zero ele retorna 
-        0, se são iguais a 1 ele retorna 1. Depois de deslocar até o bit desejavel, 
-        comparamos e retornamos até o bit menos significativo, fazendo o shift à 
-        direita, para podermos usar o operador lógico, já que o valor de retorno é 
-        0 ou 1. O operador lógico(!), usamos por conta do bit do sinal. Porque sem 
-        eles retornavam -1 
+        Para resolver esse problema, primeiro fazemos
+        o deslocamento com um shift a direita em p posições. 
+        Isso faz com que o p fique no ponto mais distante a 
+        direita do número x. Então, fazemos o AND com 1 para 
+        definir o bit que queremos da posição desejada.
+
     */
-    return !(!((x&(1<<p))>>p));
+    return (x >> p) & 1;
+    
 }
 
 /*
@@ -287,8 +310,19 @@ int32_t bitEmP(int32_t x, uint8_t p) {
  *          byteEmP(0x12345678, 3) -> 0x12
  *
  */
-//  https://stackoverflow.com/a/16106922
+
 int32_t byteEmP(int32_t x, uint8_t p) {
+    /*
+        Primeiro, encontramos a posição do byte que queremos 
+        (em bits) através da operação p << 3 (isso é equivalente a
+        fazer 8 * n). 
+        Em seguida, movemos o byte procurado para a posição mais baixa, 
+        fazendo x >> (p << 3).
+        Agora, só precisamos fazer um AND com a máscara 0xFF para 
+        retornar o valor do byte que procuramos, já que um AND entre qq valor X e 1 será X, 
+        desde que X seja diferente de zero.
+
+    */
     return (x >> (p << 3)) & 0xFF;
 }
 
@@ -333,18 +367,35 @@ int32_t setaByteEmP(int32_t x, int32_t y, uint8_t p) {
  *          minimo(-1, 2) -> -1
  *
  */
-//  https://stackoverflow.com/questions/55242326/how-does-this-bitwise-expression-help-in-finding-the-minimum-and-maximum-between
+
 int32_t minimo(int32_t x, int32_t y) {
-	/* 
-        -(x < y) será 0 se x >= y e -1 (ou seja, um int com todos os 
-        bits definidos) se x < y. Observe isso foo & -1 == foo e foo & 0 == 0
-        para todos foo. Portanto x < y, se obtemos y ^ x ^ y, que é igual a x
-        porque y ^ y cancela. E, caso contrário, obtemos y ^ 0, o que é y. 
-        Portanto, obtemos x se x < y e de y outra forma, que é exatamente o que
-        você deseja de uma função chamada min.
-        Pois max é a mesma coisa, exceto que retornaremos y se x < ye de x outra
-        forma.
-    */
+/*
+    Para resolver isso, primeiro vamos observar algumas coisas
+    Olhando para a expressão -(x < y), sabemos que ela será avaliada
+    como true caso o valor de x seja menor que y. Nesse caso, a expressão
+    dentro dos parenteses será 1 e no final, a expressão toda será -1.
+    Caso contrário, a expressão deverá retornar 0.
+
+    Agora, vamos avaliar a seguinte expresão:
+
+    (x ^ y) & -(x < y)
+
+    Ou seja, fazendo XOR bit a bit entre x e y e depois um AND com um valor
+    que pode ser 0 ou -1 (a depender do resultado de x < y).
+
+    Sabemos que um AND bit a bit com 0 fará todos os bits do resultado irem
+    para zero, então a expressão x ^ y seria avaliada como zero.
+    Caso o valor da segunda parte da expressão seja -1, todos os bits serão 
+    definidos como 1.
+
+    Agora, fazendo um XOR com o segundo parametro de entrada, teriamos o seguinte:
+    
+    y ^ (0) // o valor de x é maior ou igual a y
+    y ^ (x ^ y) // y é maior
+
+    No primeiro caso, um XOR com 0 resulta no valor do operando.
+    No segundo caso, o XOR deve retornar y
+*/
 
     return y ^ ((x ^ y) & -(x < y));  
 }
@@ -366,7 +417,12 @@ int32_t minimo(int32_t x, int32_t y) {
  */
 //  https://stackoverflow.com/questions/4764971/implementing-logical-negation-with-only-bitwise-operators-except
 int32_t negacaoLogica(int32_t x) {
-  return ((x >> 31) | ((~x + 1) >> 31)) + 1;
+
+    /*
+        Primeiro, fazemos um deslocamento a direita do valor de entrada com 31, 
+        que seria equivalente a sua negação.
+    */
+    return ((x >> 31) | ((~x + 1) >> 31)) + 1;
 }
 
 void teste(int32_t saida, int32_t esperado) {
