@@ -348,7 +348,7 @@ int32_t byteEmP(int32_t x, uint8_t p) {
  *
  */
 int32_t setaByteEmP(int32_t x, int32_t y, uint8_t p) {
-    return -1;
+    return ((x >> p) & 0x0000FFFF) | y;
 }
 
 /*
@@ -415,7 +415,7 @@ int32_t minimo(int32_t x, int32_t y) {
  *          negacaoLogica(37) -> 0
  *
  */
-//  https://stackoverflow.com/questions/4764971/implementing-logical-negation-with-only-bitwise-operators-except
+
 int32_t negacaoLogica(int32_t x) {
 
     /*
