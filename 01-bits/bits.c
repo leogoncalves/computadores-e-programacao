@@ -348,8 +348,13 @@ int32_t byteEmP(int32_t x, uint8_t p) {
  *
  */
 int32_t setaByteEmP(int32_t x, int32_t y, uint8_t p) {
-    return ((x >> p) & 0x0000FFFF) | y;
+    return -1;
 }
+
+// primeiro zeramos o byte na posicao do byte p (por meio da inversao de 1111 1111 [= 255] deslocado para a posição do byte 
+// e depois fizemos AND do inverso de 255 com X que é o valor com byte a ser alterado, obtendo assim a posicao toda 0000 0000)
+// depois disso fazemos o OR do resultado anterior com Y (byte a ser inserido) deslocado para a posicao requisitada 
+// obtendo a insercao de Y no lugar do byte desejado }
 
 /*
  * Minimo
@@ -421,6 +426,18 @@ int32_t negacaoLogica(int32_t x) {
     /*
         Primeiro, fazemos um deslocamento a direita do valor de entrada com 31, 
         que seria equivalente a sua negação.
+
+        Primeiro, fazemos o shift a direita com o 31 para manter apenas o valor do bit de sinal. Dessa forma, 
+        essa primeira fase irá retornar 0 ou 1 através da expressão x >> 31.
+        Agora, fazemos o mesmo com o valor negativo da entrada. Conseguimos obter esse valor tomando o complemento
+        a 2 da entrada e somando um (como já fizemos anteriormente em outro exercício). Também vamos usar o shift para 
+        manter apenas o bit de sinal.
+        Agora, olhando as nossas expressões, temos que os valores avaliados podem ser 0 ou -1. Podemos usar o OR para
+        recuperar esse resultado. Agora, nosso retorno sempre será 0 ou -1. Sabemos que só conseguimos obter 0 caso
+        o valor das duas expressões seja 0. Isso quer dizer que isso só é possível quando fizermos 0 OR 0.
+        Isso só será possível quando o valor da entrada for 0. Então, podemos somar 1 ao final para retornar 1 caso 
+        a entrada seja 0, e 0 caso contrário.
+
     */
     return ((x >> 31) | ((~x + 1) >> 31)) + 1;
 }
