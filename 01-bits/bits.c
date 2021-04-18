@@ -51,13 +51,20 @@
  */
 
 int32_t ehPar(int32_t x) {
-     return !(x<<31);
-/*Em binário o bit menos significativo diz se o número é impar/par, pois ele é a potência de zero. 
-Quando esse bit é 1 ele soma 1 ao número (que já são que são somas de potências de dois, é sempre par), 
-tornando-o ímpar. Caso contrário ele é par (soma das outras potências que são pares mais o zero desse 
-bit menos significativo). Como solução, tornamos o bit menos significativo o bit mais significativo, 
-"shiftando 31 a esquerda", com a finalidade de, se esse bit for 1(impar) o número é diferente de zero 
-e retorna TRUE, se for 0 (par) retorna 0=FALSE. Como queremos o valor lógico precisamo negar.*/
+    /*
+        Em binário, o estado do bit menos significativo nos mostra se ele
+        representa um número par ou ímpar. 
+        --- o bit menos significativo diz se o número é impar/par. ---
+        Ex: 0001 em base 2 é equivalente a 1 na base 10. Já 0010 na base 2 é equivalente a 2 na base 10.
+        
+        Quando esse bit é 1 ele soma 1 ao número (que já são que são somas de potências de dois, é sempre par), 
+        tornando-o ímpar. Caso contrário ele é par (soma das outras potências que são pares mais o zero desse 
+        bit menos significativo). Como solução, tornamos o bit menos significativo o bit mais significativo, 
+        "shiftando 31 a esquerda", com a finalidade de, se esse bit for 1(impar) o número é diferente de zero 
+        e retorna TRUE, se for 0 (par) retorna 0=FALSE. Como queremos o valor lógico precisamo negar.    
+    */
+    
+    return !(x<<31);
 }
 
 /*
@@ -77,8 +84,24 @@ e retorna TRUE, se for 0 (par) retorna 0=FALSE. Como queremos o valor lógico pr
  */
 
 int32_t mod8(int32_t x) {
-    return x & 0x7;
-    /* OBS: Funciona para qualquer potência de 2 */
+    /* 
+        OBS: Funciona para qualquer potência de 2 
+        A operação módulo pode ser traduzida por um AND bitwise se o divisor for uma potencia de 2.
+        Como o nosso divisor é uma potencia de 2 (2^3 == 8), podemos usar a vantagem de usar a 
+        representação binária do número para encontrar o módulo. Podemos fazer o seguinte:
+        
+        resto = dividendo & (divisor - 1)
+        
+        Ao fazer essa operação 
+         que o 
+
+        Complementar com a resposta daqui https://www.geeksforgeeks.org/find-the-remainder-when-n-is-divided-by-4-using-bitwise-and-operator/
+        If the divisor is a power of 2, you can take advantage of the binary 
+        representation of the integers to find the remainder 
+        quickly: remainder = dividend & (divisor - 1) for positive dividends
+    
+    */
+    return x & 7;
 }
 
 /* Negativo sem -
@@ -98,10 +121,8 @@ int32_t mod8(int32_t x) {
 
 // x ^ 1 === x = x-1
 int32_t negativo(int32_t x) {
-    // return ~(x^1);
-    // return ~(x+1);
-    return (~x)+1;
 	/*Complementa 2: Pegamos o complemento de x e somamos 1.*/
+    return (~x)+1;
     
 }
 
@@ -164,8 +185,9 @@ int32_t ehIgual(int32_t x, int32_t y) {
  *          limpaBitN(3, 0) -> 2
  *          limpaBitN(3, 1) -> 1
  */
+//  https://www.geeksforgeeks.org/set-clear-and-toggle-a-given-bit-of-a-number-in-c/
 int32_t limpaBitN(int32_t x, int8_t n) {
-    return -1;
+    return x & ~(1 << n);
 }
 
 /*
@@ -195,16 +217,18 @@ int32_t limpaBitN(int32_t x, int8_t n) {
  *
  */
 int32_t bitEmP(int32_t x, uint8_t p) {
-    return return !(!((x&(1<<p))>>p));
-/* Deslocamos o 1 à esquerda até a posição "p" para podermos comparar 
-bit a bit. Escolhemos o 1 pois ele só tem o bit menos significativo 
-ligado(o resto todo zero) e isso ajuda na comparação bit a bit(&). 
-O & compara bit a bit, se forem diferente ou iguais a zero ele retorna 
-0, se são iguais a 1 ele retorna 1. Depois de deslocar até o bit desejavel, 
-comparamos e retornamos até o bit menos significativo, fazendo o shift à 
-direita, para podermos usar o operador lógico, já que o valor de retorno é 
-0 ou 1. O operador lógico(!), usamos por conta do bit do sinal. Porque sem 
-eles retornavam -1 */
+    /* 
+        Deslocamos o 1 à esquerda até a posição "p" para podermos comparar 
+        bit a bit. Escolhemos o 1 pois ele só tem o bit menos significativo 
+        ligado(o resto todo zero) e isso ajuda na comparação bit a bit(&). 
+        O & compara bit a bit, se forem diferente ou iguais a zero ele retorna 
+        0, se são iguais a 1 ele retorna 1. Depois de deslocar até o bit desejavel, 
+        comparamos e retornamos até o bit menos significativo, fazendo o shift à 
+        direita, para podermos usar o operador lógico, já que o valor de retorno é 
+        0 ou 1. O operador lógico(!), usamos por conta do bit do sinal. Porque sem 
+        eles retornavam -1 
+    */
+    return !(!((x&(1<<p))>>p));
 }
 
 /*
@@ -229,8 +253,9 @@ eles retornavam -1 */
  *          byteEmP(0x12345678, 3) -> 0x12
  *
  */
+//  https://stackoverflow.com/a/16106922
 int32_t byteEmP(int32_t x, uint8_t p) {
-    return -1;
+    return (x >> (p << 3)) & 0xFF;
 }
 
 /*
@@ -274,8 +299,9 @@ int32_t setaByteEmP(int32_t x, int32_t y, uint8_t p) {
  *          minimo(-1, 2) -> -1
  *
  */
+//  https://stackoverflow.com/questions/55242326/how-does-this-bitwise-expression-help-in-finding-the-minimum-and-maximum-between
 int32_t minimo(int32_t x, int32_t y) {
-    return -1;
+    return y ^ ((x ^ y) & -(x < y));  
 }
 
 /*
@@ -293,8 +319,10 @@ int32_t minimo(int32_t x, int32_t y) {
  *          negacaoLogica(37) -> 0
  *
  */
+//  https://stackoverflow.com/questions/4764971/implementing-logical-negation-with-only-bitwise-operators-except
 int32_t negacaoLogica(int32_t x) {
-  return (x^x)&(x^~x);
+  return ((x >> 31) | ((~x + 1) >> 31)) + 1;
+//   return (x^x)&(x^~x);
 }
 
 void teste(int32_t saida, int32_t esperado) {
