@@ -121,7 +121,11 @@ int32_t mod8(int32_t x) {
 
 // x ^ 1 === x = x-1
 int32_t negativo(int32_t x) {
-	/*Complementa 2: Pegamos o complemento de x e somamos 1.*/
+    /* Uma das formas de representar números negativos é usando
+    complemento a dois. Ou seja, converter o número em binário,
+    inverter todos os bits do seu número e somar 1. O sistema 
+    reconhece que um número é negativo quando seu bit mais sig-
+    nificativo, ou seja, o bit mais à esquerna é 1.*/
     return (~x)+1;
     
 }
@@ -187,6 +191,13 @@ int32_t ehIgual(int32_t x, int32_t y) {
  */
 //  https://www.geeksforgeeks.org/set-clear-and-toggle-a-given-bit-of-a-number-in-c/
 int32_t limpaBitN(int32_t x, int8_t n) {
+	/*Dado um número x, o objetivo e retornar esse número com o bit
+	n "limpo". Ou seja, quando for 1 "apaga" e vira 0 e quando for 0
+	permanece 0. Um AND bit a bit de qualquer bit com um bit de reset
+	resulta em um bit de reset. Isso quer dizer que: 0 AND 0 = 0 e 
+	1 AND 0 = 0. Logo, significa executar um AND bit a bit de um número
+	com um bit de redefinição é a ideia mais prática. 
+	Ou seja, x = x & ~ (1 << n), onde n é o bit a ser apagado. */
     return x & ~(1 << n);
 }
 
@@ -301,6 +312,15 @@ int32_t setaByteEmP(int32_t x, int32_t y, uint8_t p) {
  */
 //  https://stackoverflow.com/questions/55242326/how-does-this-bitwise-expression-help-in-finding-the-minimum-and-maximum-between
 int32_t minimo(int32_t x, int32_t y) {
+	/* -(x < y) será 0 se x >= y e -1 (ou seja, um int com todos os 
+	bits definidos) se x < y. Observe isso foo & -1 == foo e foo & 0 == 0
+	para todos foo. Portanto x < y, se obtemos y ^ x ^ y, que é igual a x
+	porque y ^ y cancela. E, caso contrário, obtemos y ^ 0, o que é y. 
+	Portanto, obtemos x se x < y e de y outra forma, que é exatamente o que
+	você deseja de uma função chamada min.
+	Pois max é a mesma coisa, exceto que retornaremos y se x < ye de x outra
+	forma.*/
+
     return y ^ ((x ^ y) & -(x < y));  
 }
 
