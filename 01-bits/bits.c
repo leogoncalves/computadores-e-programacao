@@ -52,16 +52,18 @@
 
 int32_t ehPar(int32_t x) {
     /*
-        Em binário, o estado do bit menos significativo nos mostra se ele
-        representa um número par ou ímpar. 
-        --- o bit menos significativo diz se o número é impar/par. ---
+        Em binário, o estado do bit menos significativo nos mostra se o número é par ou ímpar.         
         Ex: 0001 em base 2 é equivalente a 1 na base 10. Já 0010 na base 2 é equivalente a 2 na base 10.
         
-        Quando esse bit é 1 ele soma 1 ao número (que já são que são somas de potências de dois, é sempre par), 
-        tornando-o ímpar. Caso contrário ele é par (soma das outras potências que são pares mais o zero desse 
-        bit menos significativo). Como solução, tornamos o bit menos significativo o bit mais significativo, 
-        "shiftando 31 a esquerda", com a finalidade de, se esse bit for 1(impar) o número é diferente de zero 
-        e retorna TRUE, se for 0 (par) retorna 0=FALSE. Como queremos o valor lógico precisamo negar.    
+        Para a solução, tornamos o bit menos significativo o bit mais significativo, 
+        "shiftando 31 a esquerda".
+        Assim, o bit mais significativo passa a ser 0 ou 1.
+
+        Caso o primeiro bit seja 0, o número é par e o resultado é zero
+        Caso o primeiro bit seja 1, o número é ímpar e o resultado é diferente de zero. 
+
+        Como queremos que a função retorne 1 caso a entrada seja par e 0 se a entrada for ímpar,
+        usamos o operador ! para inverter o valor retornado pela operação.
     */
     
     return !(x<<31);
@@ -84,22 +86,28 @@ int32_t ehPar(int32_t x) {
  */
 
 int32_t mod8(int32_t x) {
-    /* 
-        OBS: Funciona para qualquer potência de 2 
-        A operação módulo pode ser traduzida por um AND bitwise se o divisor for uma potencia de 2.
-        Como o nosso divisor é uma potencia de 2 (2^3 == 8), podemos usar a vantagem de usar a 
-        representação binária do número para encontrar o módulo. Podemos fazer o seguinte:
-        
-        resto = dividendo & (divisor - 1)
-        
-        Ao fazer essa operação 
-         que o 
+    /*  
+        Para resolver esse problema, primeiro vamos analisar alguns resultados fornecidos pela operação solicitada:
+        1 mod8 = 1
+        2 mod8 = 2
+        3 mod8 = 3
+        4 mod8 = 4
+        5 mod8 = 5
+        6 mod8 = 6
+        7 mod8 = 7
+        8 mod8 = 0
+        9 mod8 = 1
+        32 mod8 = 0
 
-        Complementar com a resposta daqui https://www.geeksforgeeks.org/find-the-remainder-when-n-is-divided-by-4-using-bitwise-and-operator/
-        If the divisor is a power of 2, you can take advantage of the binary 
-        representation of the integers to find the remainder 
-        quickly: remainder = dividend & (divisor - 1) for positive dividends
-    
+        Ou seja, devido a natureza da operação de módulo, o resultado deve ficar sempre entre
+        0 e n-1, onde n é o valor do módulo. Assim, basta que façamos um AND com entre o número
+        desejado e o valor do módulo a menos uma unidade. Ou seja, podemos fazer:
+        
+        resto = dividendo & (divisor - 1). 
+
+        No nosso caso, buscamos o valor da operação de divisão com módulo 8, então ficamos com:
+        
+        resto = x & (8 - 1)   
     */
     return x & 7;
 }
@@ -117,15 +125,15 @@ int32_t mod8(int32_t x) {
  *          negativo(1) -> -1
  *          negativo(42) -> -42
  */
-
-
-// x ^ 1 === x = x-1
 int32_t negativo(int32_t x) {
-    /* Uma das formas de representar números negativos é usando
-    complemento a dois. Ou seja, converter o número em binário,
-    inverter todos os bits do seu número e somar 1. O sistema 
-    reconhece que um número é negativo quando seu bit mais sig-
-    nificativo, ou seja, o bit mais à esquerna é 1.*/
+    /* 
+        Uma das formas de representar números negativos é usando
+        complemento a dois. 
+        Ou seja, converter o número em binário,
+        inverter todos os bits do seu número e somar 1. 
+        O sistema reconhece que um número é negativo quando seu bit mais 
+        significativo, ou seja, o bit mais à esquerda é 1.
+    */
     return (~x)+1;
     
 }
@@ -146,10 +154,14 @@ int32_t negativo(int32_t x) {
  *              11 & 1011 -> 0011
  */
 int32_t bitwiseAnd(int32_t x, int32_t y) {
+	/* 
+        O operador bitwise AND (&) retorna 1 em cada posição de byte
+        para a qual os bits correspondentes de ambos os operandos são 1.
+        Aplicando Leis De Morgan, podemos fazer o seguinte:
+        
+        Como queremos x&y, por de morgan ~((~x)|(~y)) = ~(x&y) = ~x|~y
+    */
     return ~((~x)|(~y));
-	/* O operador AND bit a bit (&) retorna 1 em cada posição de bit
-    para a qual os bits correspondentes de ambos os operandos são 1s.
-    De morgan: Como queremos x&y, por de morgan ~((~x)|(~y)) = ~(x&y) = ~x|~y */
 }
 
 /* Igual sem ==
@@ -166,13 +178,16 @@ int32_t bitwiseAnd(int32_t x, int32_t y) {
  *          ehIgual(16, 8) -> 0
  */
 int32_t ehIgual(int32_t x, int32_t y) {
-    // return !!(x & y);
-    return!(x^y);
-	/*Usamos o "ou-exclusivo(^) para comparar bit a bit. No ou-exclusivo 
-    quando os bits são iguais ele retorna 0 e quando os bits são diferentes 
-    retorna 1. Então se os números x e y são iguais, quando faço a operação 
-    ou-exclusivo ele retorna zero, caso contrário retorna um número que não 
-    necessariamente é um. Então sera necessario o operador lógico para resolver.*/
+    
+	/*
+        Usamos o "ou-exclusivo(^) para comparar bit a bit. No ou-exclusivo 
+        quando os bits são iguais ele retorna 0 e quando os bits são diferentes 
+        retorna 1. Então se os números x e y são iguais, quando faço a operação 
+        ou-exclusivo ele retorna zero, caso contrário retorna um número que não 
+        necessariamente é um. Então sera necessario o operador lógico para resolver.
+    */
+
+    return !(x^y);
 }
 
 /* Limpa bit n
@@ -189,15 +204,23 @@ int32_t ehIgual(int32_t x, int32_t y) {
  *          limpaBitN(3, 0) -> 2
  *          limpaBitN(3, 1) -> 1
  */
-//  https://www.geeksforgeeks.org/set-clear-and-toggle-a-given-bit-of-a-number-in-c/
 int32_t limpaBitN(int32_t x, int8_t n) {
-	/*Dado um número x, o objetivo e retornar esse número com o bit
-	n "limpo". Ou seja, quando for 1 "apaga" e vira 0 e quando for 0
-	permanece 0. Um AND bit a bit de qualquer bit com um bit de reset
-	resulta em um bit de reset. Isso quer dizer que: 0 AND 0 = 0 e 
-	1 AND 0 = 0. Logo, significa executar um AND bit a bit de um número
-	com um bit de redefinição é a ideia mais prática. 
-	Ou seja, x = x & ~ (1 << n), onde n é o bit a ser apagado. */
+
+	/*
+        Dado um número x, o objetivo e retornar esse número com o bit
+        n "limpo". Ou seja, quando for 1 "apaga" e vira 0 e quando for 0
+        permanece 0. 
+        Um AND bit a bit de qualquer bit com um bit de reset
+        resulta em um bit de reset. Isso quer dizer que: 
+        
+        0 AND 0 = 0
+        1 AND 0 = 0
+        
+        Logo, significa executar um AND bit a bit de um número
+        com um bit de redefinição é a ideia mais prática. 
+        Ou seja, x = x & ~ (1 << n), onde n é o bit a ser apagado. 
+    */
+
     return x & ~(1 << n);
 }
 
@@ -312,14 +335,16 @@ int32_t setaByteEmP(int32_t x, int32_t y, uint8_t p) {
  */
 //  https://stackoverflow.com/questions/55242326/how-does-this-bitwise-expression-help-in-finding-the-minimum-and-maximum-between
 int32_t minimo(int32_t x, int32_t y) {
-	/* -(x < y) será 0 se x >= y e -1 (ou seja, um int com todos os 
-	bits definidos) se x < y. Observe isso foo & -1 == foo e foo & 0 == 0
-	para todos foo. Portanto x < y, se obtemos y ^ x ^ y, que é igual a x
-	porque y ^ y cancela. E, caso contrário, obtemos y ^ 0, o que é y. 
-	Portanto, obtemos x se x < y e de y outra forma, que é exatamente o que
-	você deseja de uma função chamada min.
-	Pois max é a mesma coisa, exceto que retornaremos y se x < ye de x outra
-	forma.*/
+	/* 
+        -(x < y) será 0 se x >= y e -1 (ou seja, um int com todos os 
+        bits definidos) se x < y. Observe isso foo & -1 == foo e foo & 0 == 0
+        para todos foo. Portanto x < y, se obtemos y ^ x ^ y, que é igual a x
+        porque y ^ y cancela. E, caso contrário, obtemos y ^ 0, o que é y. 
+        Portanto, obtemos x se x < y e de y outra forma, que é exatamente o que
+        você deseja de uma função chamada min.
+        Pois max é a mesma coisa, exceto que retornaremos y se x < ye de x outra
+        forma.
+    */
 
     return y ^ ((x ^ y) & -(x < y));  
 }
@@ -342,7 +367,6 @@ int32_t minimo(int32_t x, int32_t y) {
 //  https://stackoverflow.com/questions/4764971/implementing-logical-negation-with-only-bitwise-operators-except
 int32_t negacaoLogica(int32_t x) {
   return ((x >> 31) | ((~x + 1) >> 31)) + 1;
-//   return (x^x)&(x^~x);
 }
 
 void teste(int32_t saida, int32_t esperado) {
